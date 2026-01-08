@@ -1,0 +1,10 @@
+{
+  "name": "manifold-markets",
+  "description": "Manifold Markets prediction market API guide for Claude Code",
+  "version": "1.0.0",
+  "author": {
+    "name": "Thomas Lemoine"
+  },
+  "repository": "https://github.com/Thomas-Lemoine/manifold-markets-skill",
+  "license": "MIT"
+}

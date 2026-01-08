@@ -2,30 +2,34 @@
 
 Transactions track all mana/cash movements on the platform.
 
+**Contents:** [Querying](#querying-transactions) · [Structure](#transaction-structure) · [Common Categories](#common-categories) · [All Categories](#all-category-groups)
+
 ---
 
 ## Querying Transactions
 
 ```python
-from bayesianbot.clients.manifold.client import ManifoldClient
+import requests
 
-mf = ManifoldClient()
+BASE = "https://api.manifold.markets/v0"
 
 # Get recent transactions
-txns = mf.documented.get_txns(limit=100)
+r = requests.get(f"{BASE}/txns", params={"limit": 100})
 
 # Filter by user
-txns = mf.documented.get_txns(to_id="user123", limit=100)
-txns = mf.documented.get_txns(from_id="user123", limit=100)
+r = requests.get(f"{BASE}/txns", params={"toId": "user123", "limit": 100})
+r = requests.get(f"{BASE}/txns", params={"fromId": "user123", "limit": 100})
 
 # Filter by category
-txns = mf.documented.get_txns(category="UNIQUE_BETTOR_BONUS", limit=100)
+r = requests.get(f"{BASE}/txns", params={"category": "UNIQUE_BETTOR_BONUS", "limit": 100})
 
 # Filter by time (milliseconds)
-txns = mf.documented.get_txns(after=1700000000000, before=1701000000000)
+r = requests.get(f"{BASE}/txns", params={"after": 1700000000000, "before": 1701000000000})
 
-# Exclude categories
-txns = mf.documented.get_txns(ignore_categories=["LOAN", "BETTING_STREAK_BONUS"])
+# Pagination with before cursor
+txns = r.json()
+last_id = txns[-1]["id"]
+r = requests.get(f"{BASE}/txns", params={"before": last_id, "limit": 100})
 ```
 
 ---
