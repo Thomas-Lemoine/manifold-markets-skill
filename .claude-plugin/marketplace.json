@@ -1,0 +1,17 @@
+{
+  "name": "manifold-markets-tools",
+  "description": "Plugins for working with Manifold Markets prediction market API",
+  "owner": {
+    "name": "Thomas Lemoine"
+  },
+  "plugins": [
+    {
+      "name": "manifold-markets",
+      "source": "./",
+      "description": "Manifold Markets prediction market API guide",
+      "version": "1.0.0",
+      "repository": "https://github.com/Thomas-Lemoine/manifold-markets-skill",
+      "license": "MIT"
+    }
+  ]
+}
