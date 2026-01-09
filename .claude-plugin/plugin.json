@@ -6,5 +6,6 @@
     "name": "Thomas Lemoine"
   },
   "repository": "https://github.com/Thomas-Lemoine/manifold-markets-skill",
-  "license": "MIT"
+  "license": "MIT",
+  "skills": "./skills/"
 }
