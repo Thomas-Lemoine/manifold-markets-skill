@@ -335,7 +335,49 @@ r = requests.post(f"{BASE}/user/by-id/{user_id}/unblock", headers=headers)
 
 ```python
 r = requests.get(f"{BASE}/get-user-achievements", params={"userId": user_id})
+
+# Response includes:
+{
+    "totalTradesCount": 1500,       # Total number of trades
+    "currentBettingStreak": 5,
+    # ... other achievement data
+}
 ```
+
+---
+
+## Performance Stats & Calibration
+
+Get detailed performance metrics including Sharpe ratio:
+
+```python
+r = requests.get(f"{BASE}/get-user-calibration", params={"userId": user_id})
+
+# Response:
+{
+    "calibration": {...},           # Calibration curve data (predicted vs actual)
+    "performanceStats": {
+        "totalProfit": 50000.0,
+        "profit365": 12000.0,
+        "totalVolume": 200000.0,
+        "winRate": 0.62,
+        "totalMarkets": 600,
+        "resolvedMarkets": 500,
+        "volatility": 0.15,
+        "sharpeRatio": 5.2,
+        "maxDrawdown": 0.25,
+    },
+    "portfolioHistory": [...],
+    "profitByTopic": {...}
+}
+```
+
+**Use cases:**
+- Finding top performers by Sharpe ratio
+- Analyzing trading skill vs luck
+- Comparing user performance metrics
+
+**Performance note:** This endpoint recomputes stats server-side. Parallel requests queue up and don't improve throughput. For bulk operations, filter users first using fast endpoints before calling this.
 
 ---
 

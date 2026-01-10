@@ -256,7 +256,7 @@ Organized by domain:
 |------|----------|
 | [markets.md](references/markets.md) | Create, fetch, search, edit, resolve markets, groups/topics |
 | [betting.md](references/betting.md) | Place bets, limit orders, multi-bet, sell, cancel |
-| [users.md](references/users.md) | Profiles, positions, portfolios, activity, loans |
+| [users.md](references/users.md) | Profiles, positions, portfolios, activity, loans, performance stats |
 | [social.md](references/social.md) | Comments, reactions, follows, manalinks, DMs, transactions |
 | [data-structures.md](references/data-structures.md) | Response schemas, **endpoint comparison** (which endpoint returns what), sort options |
 | [amm.md](references/amm.md) | AMM math formulas, bet sizing, arbitrage |
@@ -286,6 +286,12 @@ r = requests.get(f"{BASE}/market-probs",
 r = requests.get("https://api.manifold.markets/markets-by-ids",
     params=[("ids[]", mid) for mid in market_ids])
 ```
+
+---
+
+## Caching Bulk Data
+
+For long-running operations (scanning users, bulk fetches, etc.), cache to `~/.cache/manifold-markets/` to avoid polluting the user's repo. Use checkpointing with `processed_ids` for resumable operations.
 
 ---
 

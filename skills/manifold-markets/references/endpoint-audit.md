@@ -92,7 +92,8 @@ Complete list of Manifold API endpoints with status and notes.
 | `get-user-contract-metrics-with-contracts` | GET | ✅ | Positions with contracts |
 | `get-user-last-active-time` | GET | ✅ | Last activity (root path) |
 | `get-balance-changes` | GET | ✅ | Balance history (root path) |
-| `get-user-achievements` | GET | 📝 | User achievements |
+| `get-user-achievements` | GET | ✅ | User achievements (trade count) |
+| `get-user-calibration` | GET | ✅ | Profit, volume, calibration, Sharpe ratio |
 | `get-monthly-bets-2025` | GET | ⚠️ | 2025-specific stats |
 | `get-max-min-profit-2025` | GET | ⚠️ | 2025-specific stats |
 | `get-user-info` | GET | ❓ | Unknown - possibly duplicate |
@@ -377,8 +378,10 @@ These are for identity verification (sweepstakes compliance):
 
 | Status | Count | Action |
 |--------|-------|--------|
-| ✅ Documented | ~45 | Already in skill |
-| 📝 Should add | ~35 | Add to skill |
+| ✅ Documented | ~47 | Already in skill |
+| 📝 Should add | ~33 | Add to skill |
 | ⚠️ Niche/advanced | ~40 | Brief mention or skip |
 | 🔒 Admin/internal | ~25 | Note as off-limits |
 | ❓ Unknown | ~5 | Needs investigation |
+
+**Recent additions:** `get-user-calibration` (Sharpe ratio), `get-user-achievements` (trade count)
