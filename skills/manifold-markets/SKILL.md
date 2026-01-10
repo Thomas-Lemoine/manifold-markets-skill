@@ -1,6 +1,6 @@
 ---
 name: manifold-markets
-description: Manifold Markets prediction market API guide. Use when: (1) Fetching/searching markets or market data, (2) Placing bets, limit orders, or multi-bets, (3) Selling shares or canceling orders, (4) Analyzing positions, portfolios, or profit, (5) Building trading bots, (6) WebSocket real-time updates, (7) Bulk data via Supabase, (8) Creating/editing/resolving markets, (9) Comments, reactions, follows, managrams, or DMs, (10) Querying transactions or bet history, (11) AMM math/simulation.
+description: "Manifold Markets prediction market API guide. Use when: (1) Fetching/searching markets or market data, (2) Placing bets, limit orders, or multi-bets, (3) Selling shares or canceling orders, (4) Analyzing positions, portfolios, or profit, (5) Building trading bots, (6) WebSocket real-time updates, (7) Bulk data via Supabase, (8) Creating/editing/resolving markets, (9) Comments, reactions, follows, managrams, or DMs, (10) Querying transactions or bet history, (11) AMM math/simulation."
 user-invocable: true
 ---
 
