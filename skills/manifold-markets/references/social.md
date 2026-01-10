@@ -362,11 +362,11 @@ r = requests.get(f"{BASE}/get-site-activity", params={"limit": 50})
 ## Headlines
 
 ```python
-# General headlines
-r = requests.get(f"{BASE}/headlines")
+# General headlines (root path, not /v0/)
+r = requests.get("https://api.manifold.markets/headlines")
 
-# Politics headlines
-r = requests.get(f"{BASE}/politics-headlines")
+# Politics headlines (root path, not /v0/)
+r = requests.get("https://api.manifold.markets/politics-headlines")
 ```
 
 ---
@@ -409,12 +409,14 @@ r = requests.post(f"{BASE}/create-post-comment", headers=headers, json={
 ## Transaction Stats
 
 ```python
-# Transaction summary statistics
-r = requests.get(f"{BASE}/get-txn-summary-stats", params={
+# Transaction summary statistics (root path, not /v0/)
+r = requests.get("https://api.manifold.markets/get-txn-summary-stats", params={
     "ignoreCategories": "LOAN,BETTING_STREAK_BONUS",
     "limitDays": 30,
 })
 
-# Mana summary statistics
-r = requests.get(f"{BASE}/get-mana-summary-stats")
+# Mana summary statistics (root path, requires limitDays)
+r = requests.get("https://api.manifold.markets/get-mana-summary-stats", params={
+    "limitDays": 30,
+})
 ```

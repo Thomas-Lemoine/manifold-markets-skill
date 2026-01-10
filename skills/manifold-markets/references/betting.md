@@ -208,10 +208,12 @@ r = requests.get(f"{BASE}/bets", params={
 })
 
 # Get open limit orders WITH market data (more useful)
-r = requests.get(f"{BASE}/get-user-limit-orders-with-contracts", params={
+# Root path, not /v0/
+r = requests.get("https://api.manifold.markets/get-user-limit-orders-with-contracts", params={
     "userId": user_id,
+    "count": 100,  # Required parameter
 })
-# Returns: {"betsByContract": {...}, "contracts": [...]}
+# Returns: {"bets": [...], "contracts": [...]}
 ```
 
 ### Bet Object

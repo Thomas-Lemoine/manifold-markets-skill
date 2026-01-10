@@ -84,7 +84,8 @@ r = requests.get(f"{BASE}/search-markets", params={
 
 ```python
 # Returns full market objects instead of lite
-r = requests.get(f"{BASE}/search-markets-full", params={
+# Root path, not /v0/
+r = requests.get("https://api.manifold.markets/search-markets-full", params={
     "term": "AI",
     "filter": "open",
     "limit": 50,
