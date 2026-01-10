@@ -212,6 +212,8 @@ r = requests.post(f"{BASE}/follow-contract", headers=headers, json={
 
 ```python
 r = requests.get(f"{BASE}/get-followed-groups", params={"userId": user_id})
+# Returns: {"groups": [...]} - NOT a bare list
+groups = r.json()["groups"]
 ```
 
 ---

@@ -107,6 +107,8 @@ r = requests.get(f"{BASE}/answer/{answer_id}")
 # Root path
 r = requests.get("https://api.manifold.markets/get-related-markets",
     params={"contractId": market_id, "limit": 10})
+# Returns: {"marketsFromEmbeddings": [...]} - NOT a bare list
+markets = r.json()["marketsFromEmbeddings"]
 ```
 
 ---
@@ -303,17 +305,18 @@ r = requests.get(f"{BASE}/groups")
 r = requests.get(f"{BASE}/group/{slug}")
 r = requests.get(f"{BASE}/group/by-id/{group_id}")
 
-# Search groups
-r = requests.get(f"{BASE}/search-groups", params={"term": "politics", "limit": 10})
+# Search groups (root path, not /v0/)
+r = requests.get("https://api.manifold.markets/search-groups", params={"term": "politics", "limit": 10})
+# Returns: {"full": [...], "lite": [...]} - use "full" for complete group objects
 
-# Search your followed groups
-r = requests.get(f"{BASE}/search-my-groups", params={"term": "tech"}, headers=headers)
+# Search your followed groups (root path, requires auth)
+r = requests.get("https://api.manifold.markets/search-my-groups", params={"term": "tech"}, headers=headers)
 
 # Get markets in a group
 r = requests.get(f"{BASE}/group/by-id/{group_id}/markets")
 
-# Get groups with most popular markets
-r = requests.get(f"{BASE}/get-groups-with-top-contracts")
+# Get groups with most popular markets (root path, requires auth)
+r = requests.get("https://api.manifold.markets/get-groups-with-top-contracts", headers=headers)
 
 # Get groups a market belongs to
 r = requests.get(f"{BASE}/market/{market_id}/groups")

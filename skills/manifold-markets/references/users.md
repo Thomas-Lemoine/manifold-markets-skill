@@ -31,8 +31,10 @@ r = requests.get(f"{BASE}/users/by-id",
     params=[("ids[]", id1), ("ids[]", id2)])
 
 # Batch balances only (faster than full user objects)
-r = requests.get(f"{BASE}/users/by-id/balance",
+# Root path, not /v0/
+r = requests.get("https://api.manifold.markets/users/by-id/balance",
     params=[("ids[]", id1), ("ids[]", id2)])
+# Returns: [{"id": "user123", "balance": 1000.0}, ...]
 ```
 
 ### Search Users
@@ -64,7 +66,10 @@ r = requests.get(f"{BASE}/users", params={
 
     "createdTime": 1600000000000,
     "balance": 1000.0,              # Current mana balance
+    "cashBalance": 0.0,             # Sweepstakes cash balance
+    "spiceBalance": 0.0,            # Spice balance
     "totalDeposits": 500.0,
+    "totalCashDeposits": 0.0,       # Total sweepstakes deposits
 
     "creatorTraders": {             # Unique bettors on user's markets
         "daily": 5,
@@ -274,6 +279,10 @@ r = requests.get("https://api.manifold.markets/request-loan", headers=headers)
 
 ```python
 r = requests.get(f"{BASE}/get-followed-groups", params={"userId": user_id})
+
+# Returns dict with "groups" key, NOT a bare list:
+# {"groups": [{"id": "...", "slug": "...", "name": "...", ...}, ...]}
+groups = r.json()["groups"]
 ```
 
 ---

@@ -77,7 +77,7 @@ Different endpoints return different subsets of fields. This matters when you ne
 | `volume`, `volume24Hours` | ✓ | ✓ | ✓ | ✓ (data) |
 | `totalLiquidity` | ✓ | ✓ | ✓ | ✓ (data) |
 | `uniqueBettorCount` | ✓ | ✓ | ✓ | ✓ (data) |
-| `probability`, `p`, `pool` | ✗ | ✓ | ✓ | ✓ (data) |
+| `probability`, `p`, `pool` | ✓ | ✓ | ✓ | ✓ (data) |
 | `answers` | ✗ | ✗ | ✓ | via join |
 | `description`, `textDescription` | ✗ | ✗ | ✓ | ✓ (data) |
 | `shouldAnswersSumToOne` | ✗ | ✗ | ✓ | ✓ (data) |
@@ -308,7 +308,10 @@ Example:
 }
 ```
 
-**Pool format note:** In `market["answers"]`, pools use nested `pool: {"YES": ..., "NO": ...}`. Supabase uses flat `pool_yes`/`pool_no` columns.
+**Pool format note:** Pool format varies by endpoint:
+- In full market response (`/market/{id}`), `market["answers"]` uses nested `pool: {"YES": ..., "NO": ...}`
+- In `/market/{id}/answers` and `/answer/{id}` endpoints, uses flat `poolYes`/`poolNo` fields
+- Supabase uses flat `pool_yes`/`pool_no` columns
 
 **Market-level MC fields:**
 - `addAnswersMode`: `"DISABLED"` | `"ONLY_CREATOR"` | `"ANYONE"` - who can add answers
@@ -327,7 +330,10 @@ Example:
 
     "createdTime": 1600000000000,
     "balance": 1000.0,                 # Current mana balance
+    "cashBalance": 0.0,                # Sweepstakes cash balance
+    "spiceBalance": 0.0,               # Spice balance
     "totalDeposits": 500.0,
+    "totalCashDeposits": 0.0,          # Total sweepstakes deposits
 
     "isBot": False,
     "isAdmin": False,
