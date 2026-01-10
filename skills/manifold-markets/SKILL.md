@@ -187,6 +187,10 @@ prob = pool_no / (pool_yes + pool_no)
 | Answer pools are nested | `answer["pool"]["YES"]`, `answer["pool"]["NO"]` |
 | Root vs /v0/ paths | Some endpoints at root (no `/v0/`), see reference files |
 | No all-time volume sort | REST API has no `sort=volume`. Use Supabase (see recipes below) |
+| `profitByTopic` is a list | Not a dict. Iterate with `for item in profitByTopic` |
+| `winRate` is a percentage | Value of 62.5 means 62.5%, not 0.625 |
+| `maxDrawdown` is a percentage | Value of 25 means 25%, not 0.25 |
+| Supabase timestamps need ISO | Use `datetime.now(timezone.utc).isoformat()`, not milliseconds |
 
 ---
 

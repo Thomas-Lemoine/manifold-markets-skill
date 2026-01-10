@@ -329,13 +329,6 @@ Example:
     "balance": 1000.0,                 # Current mana balance
     "totalDeposits": 500.0,
 
-    "profitCached": {
-        "daily": 10.0,
-        "weekly": 50.0,
-        "monthly": 200.0,
-        "allTime": 1500.0,
-    },
-
     "isBot": False,
     "isAdmin": False,
     "isBannedFromPosting": False,

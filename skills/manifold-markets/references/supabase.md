@@ -46,13 +46,16 @@ recent = sb.table("contracts").select("*").order("created_time", desc=True).rang
 ### All Open Markets
 
 ```python
-import time
+from datetime import datetime, timezone
+
+# IMPORTANT: close_time is stored as timestamp, use ISO 8601 format (NOT milliseconds)
+now_iso = datetime.now(timezone.utc).isoformat()
 
 markets = (
     sb.table("contracts")
     .select("id, question, slug, close_time, mechanism, outcome_type, data")
     .is_("resolution", "null")
-    .gt("close_time", int(time.time() * 1000))
+    .gt("close_time", now_iso)
     .execute()
 )
 
@@ -60,6 +63,8 @@ markets = (
 for m in markets.data:
     prob = m["data"].get("prob")  # For binary markets
 ```
+
+**Note:** The `close_time` column is a PostgreSQL timestamp type. Using milliseconds (e.g., `int(time.time() * 1000)`) will fail with "date/time field value out of range". Always use ISO 8601 format for timestamp comparisons.
 
 ### User Positions
 
@@ -142,8 +147,8 @@ all_markets = fetch_all("contracts", select="id, question, data")
 | `outcome_type` | string | BINARY, MULTIPLE_CHOICE, etc. |
 | `mechanism` | string | cpmm-1, cpmm-multi-1, etc. |
 | `resolution` | string | YES, NO, CANCEL, null |
-| `close_time` | bigint | Milliseconds |
-| `created_time` | bigint | Milliseconds |
+| `close_time` | timestamp | Use ISO 8601 format for queries |
+| `created_time` | timestamp | Use ISO 8601 format for queries |
 | `creator_id` | string | User ID |
 | `data` | jsonb | Full market data (prob, pool, answers, etc.) |
 | `visibility` | string | public, unlisted |
