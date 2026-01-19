@@ -113,7 +113,7 @@ import requests
 
 r = requests.post("https://api.manifold.markets/v0/bet",
     headers={"Authorization": f"Key {API_KEY}"},
-    json={"contractId": market_id, "amount": 100, "outcome": "YES", "dryRun": "true"}
+    json={"contractId": market_id, "amount": 100, "outcome": "YES", "dryRun": True}
 )
 api_prob = r.json()["probAfter"]
 our_prob = simulate_bet(pool_state, 100, "YES")

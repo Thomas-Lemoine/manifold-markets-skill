@@ -63,7 +63,7 @@ r = requests.post(f"{BASE}/bet", headers=headers, json={
     "contractId": market_id,
     "amount": 100,
     "outcome": "YES",
-    "dryRun": "true",        # String, not boolean!
+    "dryRun": True,          # Boolean, not string!
 })
 # Returns what would happen without placing the bet
 ```
