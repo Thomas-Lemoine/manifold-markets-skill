@@ -181,7 +181,7 @@ prob = pool_no / (pool_yes + pool_no)
 | Issue | Solution |
 |-------|----------|
 | Timestamps are milliseconds | `close_time_sec = market["closeTime"] / 1000` |
-| Some booleans are strings | `{"dryRun": "true"}` not `{"dryRun": True}` |
+| Query param booleans are strings | `params={"perAnswer": "true"}` in URL params |
 | MC markets need `answerId` | Always include for multi-choice bets |
 | Search excludes fields | Fetch full market if you need `answers`, `description` |
 | Answer pools are nested | `answer["pool"]["YES"]`, `answer["pool"]["NO"]` |
