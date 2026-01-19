@@ -123,10 +123,10 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
     "outcomeType": "BINARY",          # See Market Types below
     "liquidityTier": 100,             # Initial liquidity (min 100, required)
 
-    # Optional (all types)
-    "description": "Resolution criteria...",  # Plain text
-    "descriptionMarkdown": "**Bold** criteria",  # OR markdown
-    "descriptionHtml": "<b>Bold</b>",  # OR HTML
+    # Optional (all types) - see Description Formats section below
+    "description": "Resolution criteria...",  # Plain text OR TipTap JSON
+    "descriptionMarkdown": "**Bold** criteria",  # Markdown (images stripped!)
+    "descriptionHtml": "<b>Bold</b>",  # HTML (images work with <img>)
     "closeTime": 1735689600000,        # Milliseconds (omit for perpetual)
     "visibility": "public",            # public, unlisted
     "groupIds": ["group1", "group2"],  # Max 5 groups/topics
@@ -154,6 +154,50 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
 - `liquidityTier` is required (minimum 100 mana)
 - `shouldAnswersSumToOne` is a **boolean**, not a string
 - For linked MC (`shouldAnswersSumToOne: true`), an "Other" answer is auto-added when `addAnswersMode` is `"ANYONE"` or `"ONLY_CREATOR"`. Independent MC markets don't get "Other".
+
+### Description Formats
+
+| Parameter | Format | Images? |
+|-----------|--------|---------|
+| `description` | Plain text OR TipTap JSON | ✅ Yes (with TipTap) |
+| `descriptionMarkdown` | Markdown string | ❌ Stripped |
+| `descriptionHtml` | HTML string | ✅ Yes (with `<img>`) |
+
+**To include images, use HTML or TipTap JSON:**
+
+```python
+description = {
+    "type": "doc",
+    "content": [
+        {"type": "paragraph", "content": [{"type": "text", "text": "Here's a chart:"}]},
+        {"type": "image", "attrs": {"src": "https://example.com/image.png", "alt": "Chart"}},
+        {"type": "paragraph", "content": [{"type": "text", "text": "Analysis continues..."}]},
+    ]
+}
+
+r = requests.post(f"{BASE}/market", headers=headers, json={
+    "question": "Will X happen?",
+    "outcomeType": "BINARY",
+    "liquidityTier": 100,
+    "initialProb": 50,
+    "description": description,  # TipTap JSON object, NOT descriptionMarkdown
+})
+```
+
+**Common TipTap node types:**
+
+| Node | Description | Attrs |
+|------|-------------|-------|
+| `paragraph` | Text container | - |
+| `text` | Inline text | - |
+| `image` | Image | `src`, `alt` |
+| `heading` | Heading | `level` (1-6) |
+| `bulletList` | Unordered list | - |
+| `orderedList` | Ordered list | - |
+| `listItem` | List item | - |
+| `codeBlock` | Code block | `language` |
+| `blockquote` | Quote | - |
+| `hardBreak` | Line break | - |
 
 ### Market Types
 
