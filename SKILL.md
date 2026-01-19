@@ -182,6 +182,7 @@ prob = pool_no / (pool_yes + pool_no)
 |-------|----------|
 | Timestamps are milliseconds | `close_time_sec = market["closeTime"] / 1000` |
 | Query param booleans are strings | `params={"perAnswer": "true"}` in URL params |
+| Markdown images stripped | Use `descriptionHtml` or TipTap JSON for images |
 | MC markets need `answerId` | Always include for multi-choice bets |
 | Search excludes fields | Fetch full market if you need `answers`, `description` |
 | Answer pools are nested | `answer["pool"]["YES"]`, `answer["pool"]["NO"]` |
