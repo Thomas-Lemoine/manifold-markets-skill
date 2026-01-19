@@ -137,13 +137,13 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
     # Multiple choice-specific
     "answers": ["Option A", "Option B", "Option C"],
     "addAnswersMode": "ANYONE",        # DISABLED, ONLY_CREATOR, ANYONE
-    "shouldAnswersSumToOne": true,     # true for linked MC, false for independent (BOOLEAN, not string!)
+    "shouldAnswersSumToOne": True,     # True for linked MC, False for independent
 
     # Numeric-specific (PSEUDO_NUMERIC)
     "min": 0,
     "max": 100,
     "initialValue": 50,
-    "isLogScale": false,              # Boolean
+    "isLogScale": False,
 
     # Bounty-specific
     "totalBounty": 500,                # Min 50

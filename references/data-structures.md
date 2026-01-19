@@ -260,10 +260,10 @@ Example probability split (MKT/CHOOSE_MULTIPLE):
 
 Example:
 ```python
-{"isResolved": false, "answers": [
+{"isResolved": False, "answers": [
     {"resolution": "NO", "resolutionProbability": 0.01},   # resolved
     {"resolution": "YES", "resolutionProbability": 0.95},  # resolved
-    {"resolution": null},  # still open for betting
+    {"resolution": None},  # still open for betting
 ]}
 ```
 
