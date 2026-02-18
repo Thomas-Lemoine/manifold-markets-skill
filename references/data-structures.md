@@ -49,8 +49,14 @@ Markets are internally called "contracts".
     # Metrics
     "volume": 5000.0,
     "volume24Hours": 100.0,
-    "totalLiquidity": 1000.0,
+    "totalLiquidity": 1000.0,          # See warning below!
     "uniqueBettorCount": 42,
+
+    # WARNING: totalLiquidity is NOT the current pool value!
+    # It tracks net subsidy deposits (liquidity added - liquidity removed), not trading activity.
+    # Pool grows from bets; totalLiquidity only changes with explicit liquidity operations.
+    # Example: A market with totalLiquidity=10k might have pool YES=100k, NO=50k from heavy betting.
+    # To compute current pool value, use the pool field directly.
 
     # Multi-choice specific
     "answers": [...],                  # List of Answer objects

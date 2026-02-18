@@ -2,15 +2,15 @@
 
 Complete guide for simulating Manifold's AMM (Constant Product Market Maker) locally.
 
-**Contents:** [Probability Formula](#probability-formula) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [Validating](#validating-simulations) · [Source Files](#source-files)
+**Contents:** [Probability Formula](#probability-formula) · [The p Parameter](#the-p-parameter) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [Validating](#validating-simulations) · [Source Files](#source-files)
 
 ---
 
 ## Probability Formula
 
 ```python
-# General formula with weighting parameter p
-prob = pool_no**(1-p) / (pool_yes**p + pool_no**(1-p))
+# General formula with weighting parameter p (from getCpmmProbability)
+prob = (p * pool_no) / ((1 - p) * pool_yes + p * pool_no)
 
 # For p=0.5 (ALL multi-choice markets), simplifies to:
 prob = pool_no / (pool_yes + pool_no)
@@ -20,15 +20,75 @@ prob = pool_no / (pool_yes + pool_no)
 
 ---
 
+## The p Parameter
+
+The `p` parameter is a weighting factor that controls the AMM curve shape for binary markets. Understanding when and how `p` changes is important for accurate simulation.
+
+### Initial Value
+
+When a binary market is created:
+```python
+p = initialProb / 100  # e.g., 95% market starts with p=0.95
+pool = {"YES": ante, "NO": ante}  # Symmetric initial pool
+```
+
+### How p Changes
+
+**p changes during betting** through the liquidity fee mechanism:
+
+1. Each bet has a small liquidity fee extracted
+2. The fee is added back to the pool via `addCpmmLiquidity()`
+3. `addCpmmLiquidity()` recalculates p to maintain the current probability
+
+```python
+# Formula from addCpmmLiquidity (called with the fee amount)
+# Maintains probability while adjusting p for new liquidity
+new_p = (prob * (amount + yes)) / (amount - no * (prob - 1) + prob * yes)
+```
+
+**p does NOT change when external subsidy is added** via the API:
+- `add-liquidity.ts` only updates `subsidyPool` and `totalLiquidity` metadata
+- The actual pool and p remain unchanged
+- Subsidy affects future fee distribution, not AMM mechanics
+
+**p DOES change when liquidity is removed**:
+- `remove-liquidity.ts` calls `removeCpmmLiquidity()` which updates both pool and p
+
+### Practical Implications
+
+- Over heavy trading, p can drift significantly from its initial value
+- A market starting at 95% (p=0.95) might end up with p=0.24 after extensive trading
+- The pool size can shrink due to selling/redemptions, causing compensating p changes
+- For accurate simulation, always use the current p from the API, not the initial probability
+
+**Warning: `totalLiquidity` vs Pool Size**
+
+The `totalLiquidity` field is NOT the current pool value. It only tracks explicit liquidity operations (subsidies added/removed), not trading activity. Bets increase pool size without affecting `totalLiquidity`.
+
+```python
+# WRONG: Don't use totalLiquidity for pool calculations
+pool_value = market["totalLiquidity"]  # This is subsidy tracking, not pool value!
+
+# CORRECT: Use the actual pool values
+pool_yes = market["pool"]["YES"]
+pool_no = market["pool"]["NO"]
+```
+
+Example: A market might have `totalLiquidity=10,000` but `pool={"YES": 100,000, "NO": 50,000}` due to heavy betting activity.
+
+---
+
 ## Computing Shares from Amount
 
 When you spend `amount` buying YES:
 ```python
-k = pool_yes**p * pool_no**(1-p)  # Invariant (preserved)
+k = pool_yes**p * pool_no**(1-p)  # Invariant (preserved during individual bet)
 new_pool_no = pool_no + amount
 new_pool_yes = (k / new_pool_no**(1-p))**(1/p)
 shares = pool_yes - new_pool_yes
 ```
+
+**Note:** The invariant k is preserved within a single bet calculation, but liquidity fees cause small adjustments after each bet via `addCpmmLiquidity()`. For precise simulation including fees, see [Source Files](#source-files).
 
 ---
 
