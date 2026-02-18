@@ -218,13 +218,23 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
 ```python
 r = requests.post(f"{BASE}/market/{market_id}/update", headers=headers, json={
     "question": "Updated question?",           # Optional
-    "description": "New description",          # Optional
     "closeTime": 1735689600000,                # Optional
     "visibility": "unlisted",                  # Optional: unlisted, public
     "addAnswersMode": "ANYONE",                # Optional: ONLY_CREATOR, ANYONE
     "coverImageUrl": "https://...",            # Optional, or null to remove
+
+    # Description fields (same options as create, but different types):
+    "description": "Plain text only",          # z.string() — does NOT accept TipTap objects
+    "descriptionJson": '{"type":"doc",...}',   # TipTap JSON stringified — USE THIS for rich text
+    "descriptionHtml": "<p>Bold</p>",          # HTML string
+    "descriptionMarkdown": "**Bold**",         # Markdown string (images stripped)
 })
 ```
+
+**Important:** Unlike the create endpoint where `description` accepts a TipTap object directly,
+the update endpoint's `description` field is `z.string()` only and will reject objects with a 400.
+To update with rich TipTap content (e.g. `contract-mention` nodes), use `descriptionJson` with
+`json.dumps(tiptap_object)` — this works and preserves all node types including custom ones.
 
 ### Close Market
 
