@@ -129,7 +129,8 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
     "descriptionHtml": "<b>Bold</b>",  # HTML (images work with <img>)
     "closeTime": 1735689600000,        # Milliseconds (omit for perpetual)
     "visibility": "public",            # public, unlisted
-    "groupIds": ["group1", "group2"],  # Max 5 groups/topics
+    "groupIds": ["group1", "group2"],  # Max 5 groups/topics — must be real UUIDs, NOT slugs
+    # To get an ID from a slug: GET /v0/group/{slug} → use the "id" field
 
     # Binary-specific
     "initialProb": 50,                 # 1-99
