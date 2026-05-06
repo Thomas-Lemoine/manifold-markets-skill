@@ -214,6 +214,22 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
 
 ## Edit Market
 
+### Immutable After Creation
+
+Some fields cannot be changed via the API once a market exists. If you need any of these to differ, create a new market and resolve/cancel the old one — there is no update endpoint that accepts them.
+
+| Field | Note |
+|-------|------|
+| `outcomeType` | Structural (BINARY, MULTIPLE_CHOICE, …) |
+| `mechanism` | Structural (cpmm-1, cpmm-multi-1, none) |
+| `shouldAnswersSumToOne` | Structural — fixes linked vs independent MC |
+| `slug` | Frozen at creation; renaming `question` does **not** regenerate it |
+| `creatorId`, `createdTime`, `token` | Identity/ownership fields |
+| `initialProb` (BINARY) | Only the *current* `p` and pool are mutable, via trades/liquidity ops |
+| `min`, `max`, `isLogScale` (PSEUDO_NUMERIC) | Structural numeric range |
+
+Note: `addAnswersMode` on linked MC (`shouldAnswersSumToOne=true`) appears to be effectively fixed at creation as well — see the create-market section.
+
 ### Update Properties
 
 ```python
