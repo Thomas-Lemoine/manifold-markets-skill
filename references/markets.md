@@ -236,7 +236,35 @@ Some fields cannot be changed via the API once a market exists. If you need any 
 | `initialProb` (BINARY) | Only the *current* `p` and pool are mutable, via trades/liquidity ops |
 | `min`, `max`, `isLogScale` (PSEUDO_NUMERIC) | Structural numeric range |
 
-Note: `addAnswersMode` on linked MC (`shouldAnswersSumToOne=true`) appears to be effectively fixed at creation as well — see the create-market section.
+Note: `addAnswersMode` on linked MC (`shouldAnswersSumToOne=true`) is effectively fixed at creation as well — see the create-market section.
+
+### Verifying Writes
+
+Some write endpoints return `{"success": true}` (or 200 OK) even when the requested change did **not** persist. Treat the response as a hint, not proof — always re-fetch and inspect the field you edited.
+
+```python
+# Pattern: write, re-fetch, check, retry-with-backoff if read is stale
+import time
+
+def verify(market_id, field, expected, attempts=3):
+    for i in range(attempts):
+        m = requests.get(f"{BASE}/market/{market_id}").json()
+        if m.get(field) == expected or expected in (m.get(field) or []):
+            return True
+        time.sleep(2 ** i)  # 1s, 2s, 4s — covers typical 5-15s read-after-write cache lag
+    return False
+```
+
+**Read-after-write cache lag:** A `GET /v0/market/:id` issued immediately after a mutation can return stale data for ~5–15s before the write shows up. If your first re-fetch shows old state, wait and retry once or twice before declaring failure.
+
+**Known silent-failure cases:**
+
+| Endpoint | What looks fine | What actually happened |
+|----------|-----------------|------------------------|
+| `POST /v0/market/:id/group` | `{"success": true}` | Group **not** added if the market is already at the 5-group cap. `groupSlugs` unchanged on re-fetch. |
+| `POST /edit-answer-cpmm` | `{"status": "success"}` | Always re-check `answers[].text` — short success bodies don't guarantee persistence. |
+
+If you discover another endpoint with this property, please open an issue.
 
 ### Update Properties
 
