@@ -306,6 +306,28 @@ r = requests.post(f"{BASE}/market/{market_id}/resolve", headers=headers, json={
 })
 ```
 
+### Multiple Choice - Independent (per-answer)
+
+For markets created with `shouldAnswersSumToOne: false`, each answer behaves like its own binary market and can be resolved independently with `outcome: "YES"` or `"NO"` plus the `answerId`:
+
+```python
+r = requests.post(f"{BASE}/market/{market_id}/resolve", headers=headers, json={
+    "outcome": "NO",          # or "YES"
+    "answerId": answer_id,
+})
+# 200 OK -> {"message": "success"}
+```
+
+After this call:
+- The targeted answer flips to `resolution: "NO"` (or `"YES"`) and stops trading.
+- The market itself remains `isResolved: false`.
+- Other answers stay open and tradable.
+- Subsequent calls with different `answerId`s incrementally resolve the rest.
+
+This is the typical pattern for walking a "Before {month} {year}" release-date ladder — each month resolves NO as it lapses, eventually one resolves YES.
+
+**Not valid on linked MC** (`shouldAnswersSumToOne: true`): use `CHOOSE_ONE` / `CHOOSE_MULTIPLE` / `MKT` instead, since exactly one answer can resolve YES.
+
 ### Cancel
 
 ```python
