@@ -2,7 +2,7 @@
 
 Complete guide for simulating Manifold's AMM (Constant Product Market Maker) locally.
 
-**Contents:** [Probability Formula](#probability-formula) · [The p Parameter](#the-p-parameter) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [Validating](#validating-simulations) · [Source Files](#source-files)
+**Contents:** [Probability Formula](#probability-formula) · [The p Parameter](#the-p-parameter) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [LP Economics](#liquidity-provider-economics) · [Validating](#validating-simulations) · [Source Files](#source-files)
 
 ---
 
@@ -162,6 +162,46 @@ When you hold both YES and NO shares in a binary market, they automatically rede
 - The `isRedemption` field in bet responses indicates redemption occurred
 
 **Example:** You buy 20 YES shares, then buy 30 NO shares. You now have 0 YES and 10 NO (not 20 YES and 30 NO), plus mana from the 20 redeemed pairs.
+
+---
+
+## Liquidity Provider Economics
+
+Subsidising a market is **not** a yield-bearing investment. From Manifold's FAQ: *"You should always expect to lose mana from subsidising a market."*
+
+### What LPs Receive at Resolution
+
+LPs get their proportional share of the **final** pool, not their original deposit:
+
+```python
+lp_payout = lp_weight * (pool[winning_outcome] + subsidyPool)
+```
+
+Because the pool composition shifts as traders bet, the winning side's pool can shrink dramatically below what was originally deposited.
+
+### Impermanent Loss
+
+The further the market probability moves from where you added liquidity, the larger the loss:
+
+| Probability movement from entry | Approximate LP loss |
+|---------------------------------|---------------------|
+| ±10%                            | ~1–5%               |
+| ±30%                            | ~10–20%             |
+| ±50%                            | ~25–40%             |
+| ±90% (e.g. 95% → 5%)            | ~80–99%             |
+
+**Example:** A market starts at 95% with 1000M liquidity. After trading drives it to ~1% (`pool ≈ {YES: 85, NO: 3}`):
+- Resolves NO → LPs receive ~3M (≈99.7% loss)
+- Resolves YES → LPs receive ~85M (≈91.5% loss)
+
+### When to Add Liquidity
+
+Only add liquidity if you:
+1. Believe the current probability is accurate.
+2. Want to reduce volatility / subsidise a market you care about.
+3. Accept losing most or all of your deposit.
+
+Do NOT model `add-liquidity` as an investment with positive expected return.
 
 ---
 
