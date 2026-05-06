@@ -156,6 +156,14 @@ r = requests.post(f"{BASE}/market", headers=headers, json={
 - `shouldAnswersSumToOne` is a **boolean**, not a string
 - For linked MC (`shouldAnswersSumToOne: true`), an "Other" answer is auto-added when `addAnswersMode` is `"ANYONE"` or `"ONLY_CREATOR"`. Independent MC markets don't get "Other".
 
+#### `addAnswersMode`: fixed-at-creation consequences
+
+For linked MC (`shouldAnswersSumToOne: true`), `addAnswersMode` has consequences that are baked in at creation and cannot be undone later:
+
+- **`DISABLED` creates no `Other`.** A linked MC market created with `addAnswersMode: "DISABLED"` has no auto-generated `Other` answer — the final bucket is whatever text the creator typed. This is a one-way door: you cannot add answers later.
+- **Flipping `addAnswersMode` later does not retroactively create `Other`.** If a linked MC market was created with `DISABLED` and is later updated to `ANYONE` / `ONLY_CREATOR`, no `Other` answer is added. The presence/absence of `Other` is fixed by the *initial* `addAnswersMode`.
+- **`addAnswersMode` may not be editable on linked MC.** Empirically, `POST /v0/market/:id/update` appears to reject `addAnswersMode` changes when `shouldAnswersSumToOne: true` (independent MC accepts the change). This is observed but not maintainer-confirmed — assume you must pick the right value at creation on linked MC.
+
 ### Description Formats
 
 | Parameter | Format | Images? |
