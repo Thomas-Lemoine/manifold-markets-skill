@@ -260,6 +260,26 @@ r = requests.post(f"{BASE}/market/{market_id}/answer", headers=headers, json={
 
 **Note:** Adding answers costs mana as liquidity subsidy (`ADD_SUBSIDY` transaction). Cost scales with market liquidity:
 
+### Edit Answer (Multiple Choice)
+
+Rename an existing answer or change its color. **Root path, not `/v0/`** — and not surfaced by Manifold's public API docs.
+
+```python
+# Edit answer text (and optionally color) on a cpmm-multi-1 market
+r = requests.post("https://api.manifold.markets/edit-answer-cpmm", headers=headers, json={
+    "contractId": market_id,
+    "answerId": answer_id,
+    "text": "Renamed answer",     # required
+    # "color": "#ff0099",         # optional; if provided, must be a string (null returns 400)
+})
+# Returns: {"status": "success"}
+```
+
+**Notes:**
+- Creator only.
+- Verified on linked MC (`shouldAnswersSumToOne=true`); the endpoint name implies cpmm-multi-1 scope and it has not been confirmed to work elsewhere.
+- Always re-fetch and check `answers[].text` — `{"status": "success"}` is not proof the write persisted.
+
 | Tier | Cost | Triggered when liquidity/answer is... |
 |------|------|---------------------------------------|
 | 0 | 25 | Low |
