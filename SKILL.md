@@ -193,6 +193,7 @@ prob = pool_no / (pool_yes + pool_no)
 | `maxDrawdown` is a percentage | Value of 25 means 25%, not 0.25 |
 | Supabase timestamps need ISO | Use `datetime.now(timezone.utc).isoformat()`, not milliseconds |
 | Write returns success but didn't persist | Always re-fetch and verify the changed field. See [Verifying Writes](references/markets.md#verifying-writes). Reads can lag writes by 5-15s. |
+| HTTP 500 with `code: 40001` on `/resolve` | Transient SERIALIZABLE conflict — may have committed partially. Always re-fetch state before retrying. See [Retry Semantics](references/markets.md#retry-semantics-transient-http-500-on-resolve). |
 
 ---
 

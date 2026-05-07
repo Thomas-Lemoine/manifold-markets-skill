@@ -428,6 +428,40 @@ r = requests.post("https://api.manifold.markets/unresolve", headers=headers, jso
 - Creates reversal transactions for all payouts
 - Market returns to unresolved state
 
+### Retry Semantics: Transient HTTP 500 on /resolve
+
+`POST /v0/market/:id/resolve` can return **HTTP 500** with a Postgres `code: "40001"` error and the message `could not serialize access due to read/write dependencies among transactions`. This is a transient SERIALIZABLE-isolation conflict on the backend (concurrent payout/txn updates), not a malformed request — but the response wrapper makes it look like a permanent server error.
+
+**Critical caveat: the backend may have already committed.** When the conflict is detected late in the transaction, the resolution can be partially or fully applied before the 500 is raised. Verified empirically: a 500 came back, yet on re-fetch the answer was already `resolution: "NO"` and payouts had been issued.
+
+So: **don't blindly retry on 500** — you can double-resolve, or get a confusing second-attempt error. Always re-fetch state between attempts and skip if the desired resolution is already in place.
+
+```python
+import time
+
+def resolve_with_retry(market_id, answer_id, outcome, max_attempts=4):
+    for attempt in range(max_attempts):
+        # Pre-check: if the previous attempt actually committed, short-circuit.
+        m = requests.get(f"{BASE}/market/{market_id}").json()
+        for a in m.get("answers", []):
+            if a["id"] == answer_id and a.get("resolution") == outcome:
+                return "already-resolved"
+
+        try:
+            r = requests.post(f"{BASE}/market/{market_id}/resolve", headers=headers, json={
+                "outcome": outcome, "answerId": answer_id,
+            })
+            r.raise_for_status()
+            return "success"
+        except requests.HTTPError as e:
+            if e.response.status_code in (500, 503) and attempt < max_attempts - 1:
+                time.sleep(2 + 2 * attempt)  # 2s, 4s, 6s backoff
+                continue
+            raise
+```
+
+The pre-check is what makes this safe: a prior 500 that actually committed is detected as `already-resolved` on the next iteration.
+
 ---
 
 ## Liquidity
