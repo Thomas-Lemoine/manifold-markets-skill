@@ -261,10 +261,13 @@ def verify(market_id, field, expected, attempts=3):
 
 | Endpoint | What looks fine | What actually happened |
 |----------|-----------------|------------------------|
-| `POST /v0/market/:id/group` | `{"success": true}` | Group **not** added if the market is already at the 5-group cap. `groupSlugs` unchanged on re-fetch. |
-| `POST /edit-answer-cpmm` | `{"status": "success"}` | Always re-check `answers[].text` — short success bodies don't guarantee persistence. |
+| `POST /v0/market/:id/update` with `addAnswersMode` | HTTP 200 | On linked MC (`shouldAnswersSumToOne: true`) the field is silently unchanged. Independent MC accepts the change normally. |
+| `POST /edit-answer-cpmm` | `{"status": "success"}` | Re-check `answers[].text` — the short success body doesn't guarantee persistence. |
 
-If you discover another endpoint with this property, please open an issue.
+For comparison, *non*-silent failures with similar shapes — these throw, so a try/except is enough:
+- `POST /v0/market/:id/group` past the 5-group cap returns **HTTP 403** with `"A question can only have up to 5 topic tags."` (not silent — your `r.raise_for_status()` will catch it).
+
+If you discover another silent-failure endpoint, please open an issue.
 
 ### Update Properties
 
