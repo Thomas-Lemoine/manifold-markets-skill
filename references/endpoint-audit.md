@@ -11,6 +11,8 @@ Complete list of Manifold API endpoints with status and notes.
 - 🔒 Admin/internal (skip or note as off-limits)
 - ❓ Unknown purpose (needs investigation)
 
+> **Root-path endpoints:** Many real endpoints live at `https://api.manifold.markets/<name>` (no `/v0/` prefix) — e.g. `unresolve`, `markets-by-ids`, `edit-answer-cpmm`, `search-users`. They are **not** listed at `docs.manifold.markets/api`. If a `/v0/...` probe returns 404, also try the root path before concluding the feature doesn't exist; the rows below tagged "(root path)" mark the known cases.
+
 ---
 
 ## Markets
@@ -47,6 +49,7 @@ Complete list of Manifold API endpoints with status and notes.
 | `market/:contractId/award-bounty` | POST | ✅ | Award bounty |
 | `market/:contractId/group` | POST | ✅ | Add/remove from group |
 | `market/:contractId/answer` | POST | ✅ | Add answer to MC |
+| `edit-answer-cpmm` | POST | ✅ | Edit answer text/color on cpmm-multi-1 MC (root path) |
 | `market/:contractId/block` | POST | ✅ | Block market |
 | `market/:contractId/unblock` | POST | ✅ | Unblock market |
 | `unresolve` | POST | ✅ | Unresolve market (root path, creator only) |
