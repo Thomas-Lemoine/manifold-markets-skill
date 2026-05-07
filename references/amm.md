@@ -179,20 +179,26 @@ lp_payout = lp_weight * (pool[winning_outcome] + subsidyPool)
 
 Because the pool composition shifts as traders bet, the winning side's pool can shrink dramatically below what was originally deposited.
 
-### Impermanent Loss
+### Computing the Loss
 
-The further the market probability moves from where you added liquidity, the larger the loss:
+Pool starts symmetric: `pool = {"YES": L, "NO": L}`, with weighting parameter `p = initialProb / 100`. The CPMM invariant is `k = pool_yes**p * pool_no**(1-p) = L`. If trading drives the probability to `q`, the new pool is:
 
-| Probability movement from entry | Approximate LP loss |
-|---------------------------------|---------------------|
-| ±10%                            | ~1–5%               |
-| ±30%                            | ~10–20%             |
-| ±50%                            | ~25–40%             |
-| ±90% (e.g. 95% → 5%)            | ~80–99%             |
+```python
+def lp_payouts(p_init, q_final, L):
+    """Mana paid to LPs of a fresh L-mana market if it resolves YES vs NO at probability q."""
+    R = (q_final * (1 - p_init)) / (p_init * (1 - q_final))
+    new_yes = L / R**(1 - p_init)   # paid out if resolves YES
+    new_no  = L * R**p_init         # paid out if resolves NO
+    return new_yes, new_no
+```
 
-**Example:** A market starts at 95% with 1000M liquidity. After trading drives it to ~1% (`pool ≈ {YES: 85, NO: 3}`):
-- Resolves NO → LPs receive ~3M (≈99.7% loss)
-- Resolves YES → LPs receive ~85M (≈91.5% loss)
+(LP fees and post-creation `add-liquidity` operations distort this — real markets typically lose **more** than the formula predicts because trading fees that drain the pool aren't recovered. Use the formula as a best-case lower bound on losses.)
+
+**Worked example:** `L = 1000`, `initialProb = 95%`, market drifts to `q = 50%` from heavy NO trading. The formula gives `(YES_pay, NO_pay) ≈ (1158, 61)`:
+- Resolves YES → LP receives ≈1158M (≈+16% — possible because NO traders paid mana into the pool).
+- Resolves NO → LP receives ≈61M (≈−94%).
+
+The asymmetry is the point: **adding liquidity at a confident probability is a leveraged bet that the probability is correct.** If the market moves against you and resolves on the wrong side, you can lose >90% of your deposit. The Manifold FAQ's "always expect to lose mana" is the conservative summary.
 
 ### When to Add Liquidity
 
