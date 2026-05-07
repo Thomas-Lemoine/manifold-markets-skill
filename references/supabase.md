@@ -208,6 +208,31 @@ all_markets = fetch_all("contracts", select="id, question, data")
 | `group_id` | string | Group ID |
 | `contract_id` | string | Market ID |
 
+### txns
+
+Money-flow ledger (subsidies, fees, bonuses, manalinks, etc.). Always filter — unfiltered scans time out.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | string | Transaction ID |
+| `created_time` | timestamp | Use ISO 8601 for queries |
+| `from_id` | string | Sender ID (user, bank, contract) |
+| `from_type` | string | `USER`, `BANK`, `CONTRACT`, etc. |
+| `to_id` | string | Recipient ID |
+| `to_type` | string | Same set as `from_type` |
+| `amount` | float | Mana amount |
+| `category` | string | e.g. `ADD_SUBSIDY`, `MANA_PAYMENT`, `MARKET_BOOST_REDEEM` |
+| `token` | string | `MANA`, `CASH`, `SPICE` |
+| `data` | jsonb | Category-specific extra fields |
+
+```python
+# Subsidies added to a specific market
+sb.table("txns").select("*").eq("category", "ADD_SUBSIDY").eq("to_id", market_id).execute()
+
+# All payments sent by a user
+sb.table("txns").select("*").eq("from_id", user_id).eq("category", "MANA_PAYMENT").execute()
+```
+
 ---
 
 ## Accessing JSON Columns
@@ -267,5 +292,6 @@ result = (
 - All timestamps are JavaScript milliseconds (not seconds)
 - Supabase is **read-only** (no writes via anon key)
 - Rate limits are generous but avoid hammering
-- `bets` and `txns` tables are NOT accessible - use REST API
+- `bets` table does NOT exist - use REST API for bet data
+- `txns` table IS accessible (see [txns](#txns) below) but always filter by `category`, `from_id`, `to_id`, or a time range to avoid timeouts
 - For real-time updates, use WebSocket instead

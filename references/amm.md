@@ -2,7 +2,7 @@
 
 Complete guide for simulating Manifold's AMM (Constant Product Market Maker) locally.
 
-**Contents:** [Probability Formula](#probability-formula) · [The p Parameter](#the-p-parameter) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [Validating](#validating-simulations) · [Source Files](#source-files)
+**Contents:** [Probability Formula](#probability-formula) · [The p Parameter](#the-p-parameter) · [Shares from Amount](#computing-shares-from-amount) · [Amount from Shares](#computing-amount-from-shares-p05-only) · [Linked MC Arbitrage](#linked-mc-arbitrage-shouldanswerssumtoonetrue) · [Auto-Redemption](#auto-redemption-binary-markets) · [LP Economics](#liquidity-provider-economics) · [Validating](#validating-simulations) · [Source Files](#source-files)
 
 ---
 
@@ -162,6 +162,52 @@ When you hold both YES and NO shares in a binary market, they automatically rede
 - The `isRedemption` field in bet responses indicates redemption occurred
 
 **Example:** You buy 20 YES shares, then buy 30 NO shares. You now have 0 YES and 10 NO (not 20 YES and 30 NO), plus mana from the 20 redeemed pairs.
+
+---
+
+## Liquidity Provider Economics
+
+Subsidising a market is **not** a yield-bearing investment. From Manifold's FAQ: *"You should always expect to lose mana from subsidising a market."*
+
+### What LPs Receive at Resolution
+
+LPs get their proportional share of the **final** pool, not their original deposit:
+
+```python
+lp_payout = lp_weight * (pool[winning_outcome] + subsidyPool)
+```
+
+Because the pool composition shifts as traders bet, the winning side's pool can shrink dramatically below what was originally deposited.
+
+### Computing the Loss
+
+Pool starts symmetric: `pool = {"YES": L, "NO": L}`, with weighting parameter `p = initialProb / 100`. The CPMM invariant is `k = pool_yes**p * pool_no**(1-p) = L`. If trading drives the probability to `q`, the new pool is:
+
+```python
+def lp_payouts(p_init, q_final, L):
+    """Mana paid to LPs of a fresh L-mana market if it resolves YES vs NO at probability q."""
+    R = (q_final * (1 - p_init)) / (p_init * (1 - q_final))
+    new_yes = L / R**(1 - p_init)   # paid out if resolves YES
+    new_no  = L * R**p_init         # paid out if resolves NO
+    return new_yes, new_no
+```
+
+(LP fees and post-creation `add-liquidity` operations distort this — real markets typically lose **more** than the formula predicts because trading fees that drain the pool aren't recovered. Use the formula as a best-case lower bound on losses.)
+
+**Worked example:** `L = 1000`, `initialProb = 95%`, market drifts to `q = 50%` from heavy NO trading. The formula gives `(YES_pay, NO_pay) ≈ (1158, 61)`:
+- Resolves YES → LP receives ≈1158M (≈+16% — possible because NO traders paid mana into the pool).
+- Resolves NO → LP receives ≈61M (≈−94%).
+
+The asymmetry is the point: **adding liquidity at a confident probability is a leveraged bet that the probability is correct.** If the market moves against you and resolves on the wrong side, you can lose >90% of your deposit. The Manifold FAQ's "always expect to lose mana" is the conservative summary.
+
+### When to Add Liquidity
+
+Only add liquidity if you:
+1. Believe the current probability is accurate.
+2. Want to reduce volatility / subsidise a market you care about.
+3. Accept losing most or all of your deposit.
+
+Do NOT model `add-liquidity` as an investment with positive expected return.
 
 ---
 
