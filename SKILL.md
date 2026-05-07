@@ -192,6 +192,7 @@ prob = pool_no / (pool_yes + pool_no)
 | `winRate` is a percentage | Value of 62.5 means 62.5%, not 0.625 |
 | `maxDrawdown` is a percentage | Value of 25 means 25%, not 0.25 |
 | Supabase timestamps need ISO | Use `datetime.now(timezone.utc).isoformat()`, not milliseconds |
+| Write returns success but didn't persist | Always re-fetch and verify the changed field. See [Verifying Writes](references/markets.md#verifying-writes). Reads can lag writes by 5-15s. |
 
 ---
 
